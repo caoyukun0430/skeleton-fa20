@@ -33,7 +33,7 @@ public class IntList {
     }
 
     /**
-     * Returns a of equal to L with all elements squared. Destructive.
+     * Returns a of equal to L with all elements squared. Iterative & Destructive.
      */
     public static void dSquareList(IntList L) {
 
@@ -44,7 +44,7 @@ public class IntList {
     }
 
     /**
-     * Returns a of equal to L with all elements squared. Non-destructive.
+     * Returns a of equal to L with all elements squared. Iterative & Non-destructive.
      */
     public static IntList squareListIterative(IntList L) {
         if (L == null) {
@@ -62,7 +62,7 @@ public class IntList {
     }
 
     /**
-     * Returns a of equal to L with all elements squared. Non-destructive.
+     * Returns a of equal to L with all elements squared. Recursive & Non-destructive.
      */
     public static IntList squareListRecursive(IntList L) {
         if (L == null) {
@@ -72,6 +72,17 @@ public class IntList {
     }
 
     /** DO NOT MODIFY ANYTHING ABOVE THIS LINE! */
+
+    /**
+     * Returns a of equal to L with all elements squared. Recursive & Destructive.
+     */
+    public static IntList dsquareListRecursive(IntList L) {
+        if (L != null) {
+            L.first = L.first * L.first;
+            L.rest = dsquareListRecursive(L.rest);
+        }
+        return L;
+    }
 
 
     /**

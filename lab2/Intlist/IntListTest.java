@@ -48,6 +48,15 @@ public class IntListTest {
         assertEquals(IntList.of(1, 4, 9), res);
     }
 
+    // Yukun: Recursive & Destructive.
+    @Test
+    public void testdSquareListRecursive() {
+        IntList L = IntList.of(1, 2, 3);
+        IntList res = IntList.dsquareListRecursive(L);
+        assertEquals(IntList.of(1, 4, 9), L);
+        assertEquals(IntList.of(1, 4, 9), res);
+    }
+
     @Test
     public void testDcatenate() {
         IntList A = IntList.of(1, 2, 3);
