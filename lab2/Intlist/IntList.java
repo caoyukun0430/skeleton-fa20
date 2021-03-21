@@ -77,20 +77,75 @@ public class IntList {
     /**
      * Returns a of consisting of the elements of A followed by the
      * *  elements of B.  May modify items of A. Don't use 'new'.
+     * Yukun: for destructive, it's important to not wait until if A == null,
+     * otherwise we can't link B to A if A is simply null.
+     * Need to link when A.rest = null, i.e. A has last element
      */
 
     public static IntList dcatenate(IntList A, IntList B) {
-        //TODO:  fill in method
-        return null;
+        if (B == null) {
+            return A;
+        } else if (A == null) {
+            return B;
+        }
+
+        if (A.rest == null) {
+            A.rest = B;
+        } else {
+            A.rest = dcatenate(A.rest, B);
+        }
+        return A;
+    }
+    /**
+     * Core idea is to link B to IntList(3, null) --> IntList(3, B),
+     * then A automatically has all B append
+     * */
+    public static IntList dcatenateIterative(IntList A, IntList B) {
+        if (B == null) {
+            return A;
+        } else if (A == null) {
+            return B;
+        }
+
+        IntList p = A;
+        while (p.rest != null) {
+            p = p.rest;
+        }
+        p.rest = B;
+        return A;
     }
 
     /**
      * Returns a of consisting of the elements of A followed by the
      * * elements of B.  May NOT modify items of A.  Use 'new'.
+     * idea is quite similar to dcatenate
      */
+
     public static IntList catenate(IntList A, IntList B) {
-        //TODO:  fill in method
-        return null;
+        IntList res = new IntList(A.first, null);
+        if (A.rest == null) {
+            res.rest = B;
+        } else {
+            res.rest = catenate(A.rest, B);
+        }
+        return res;
+    }
+
+    /**
+     * In iterative def, we need another ptr to always put newly-added
+     * A.first values into front: ptr.first
+     * */
+    public static IntList catenateIterative(IntList A, IntList B) {
+        IntList res = new IntList(A.first, null);
+        IntList ptr = res;
+        A = A.rest;
+        while (A != null) {
+            ptr.rest = new IntList(A.first, null);
+            A = A.rest;
+            ptr = ptr.rest;
+        }
+        ptr.rest = B;
+        return res;
     }
 
 
