@@ -110,7 +110,7 @@ public class LinkedListDeque<T> {
      * @Rule: Must use iteration!
      */
     public T get(int index) {
-        if (size == 0 || index > size) {
+        if (size == 0 || index >= size) {
             return null;
         } else {
             IntNode p = sentinel;
