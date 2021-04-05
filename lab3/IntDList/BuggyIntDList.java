@@ -31,19 +31,36 @@ public class BuggyIntDList extends IntDList {
      */
     private DNode sortedMerge(DNode d1, DNode d2) {
 
-        // FIXME: Below code has multiple problems. Debug the code to implement correct functionality.
+        // FIXME: Two issue. sortedMerge recursive inputs are wrong. Base cases are not handled.
 
         // ------ WRITE ADDITIONAL CODE HERE AND ONLY HERE (IF NEEDED) ------
+        // Base case and we need to update back instance variable *back* for IntDList
+        if (d1 == null) {
+            DNode dLast = d2;
+            while (dLast.next != null) {
+                dLast = dLast.next;
+            }
+            back = dLast;
+            return d2;
+        }
+        if (d2 == null) {
+            DNode dLast = d1;
+            while (dLast.next != null) {
+                dLast = dLast.next;
+            }
+            back = dLast;
+            return d1;
+        }
 
         // ------------------------------------------------------------------
 
         if (d1.val <= d2.val) {
-            d1.next = sortedMerge(d1, d2.next);   // FIXME: Replace this line (if needed). HINT: Step Into(F7) using debugger and try to figure out what it does.
+            d1.next = sortedMerge(d1.next, d2);   // FIXME: FIXED.
             d1.next.prev = d1;
             d1.prev = null;
             return d1;
         } else {
-            d2.next = sortedMerge(d1.next, d2);   // FIXME: Replace this line (if needed). HINT: Step Into(F7) using debugger and try to figure out what it does.
+            d2.next = sortedMerge(d1, d2.next);   // FIXME: FIXED.
             d2.next.prev = d2;
             d2.prev = null;
             return d2;
@@ -56,25 +73,33 @@ public class BuggyIntDList extends IntDList {
      */
     public void reverse() {
 
-        // FIXME: Below code has multiple problems. Debug the code to implement correct functionality.
+        // FIXME: Below code has multiple problems.
 
         DNode temp = null;
         DNode p = front;
 
         // HINT: What does this while loop do? Use Debugger and Java Visualizer to figure out.
+        // Answer: loop over each element to reverse next and prev pointer
         while (p != null) {
             temp = p.prev;
             p.prev = p.next;
             p.next = temp;
-            p = p.next;        // FIXME: Replace this line (if needed). HINT: Use debugger and Java Visualizer to figure out what it does.
+            p = p.prev; // FIXME: Fixed, old p.next is now p.prev, iterate update p pos
         }
 
         // HINT: What does this if block do? Use Debugger and Java Visualizer to figure out.
+        // Answer: while loop exits, temp points at the 2nd element of old p,
+        // OR last 2nd element of reversed p.
+        // So we need to update back and front based on temp pos
         if (temp != null) {
             // ------ WRITE ADDITIONAL CODE HERE AND ONLY HERE (IF NEEDED) -----
-
+            DNode backpos = temp;
+            while (backpos.next != null) {
+                backpos = backpos.next;
+            }
+            back = backpos;
             // -----------------------------------------------------------------
-            front = temp.next;    // FIXME: Replace this line (if needed). HINT: Use debugger and Java Visualizer to figure out what it does.
+            front = temp.prev; // FIXME: Fixed, temp is already the last 2nd element of reversed p
         }
     }
 }
