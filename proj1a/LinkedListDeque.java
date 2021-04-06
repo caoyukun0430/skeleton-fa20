@@ -6,11 +6,11 @@ public class LinkedListDeque<T> {
      * time must be proportional to the number of items.
      * */
     private class IntNode {
-        public T item;
-        public IntNode prev;
-        public IntNode next;
+        T item;
+        IntNode prev;
+        IntNode next;
 
-        public IntNode(T i, IntNode p, IntNode n) {
+        IntNode(T i, IntNode p, IntNode n) {
             item = i;
             prev = p;
             next = n;

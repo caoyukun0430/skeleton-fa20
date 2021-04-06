@@ -1,6 +1,5 @@
 import org.junit.Test;
 import static org.junit.Assert.*;
-import java.util.Random;
 
 /** Performs some basic array list tests. */
 public class ArrayDequeTest {

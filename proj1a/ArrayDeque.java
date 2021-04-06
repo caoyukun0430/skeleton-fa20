@@ -1,4 +1,4 @@
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 /**
  * Array-based double ended queue, which accepts generic types.
  * @Rule: All the method should follow "Deque API" described in
@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
  *  proportional to the number of items.
  * @Rule: For Arrays of length 16 or more, the usage factor should always be at least 25%.
  */
-public class ArrayDeque<Item> {
+public class ArrayDeque<T> {
 
 //         0 1  2 3 4 5 6 7
 // items: [6 9 -1 2 0 0 0 0 ...]
@@ -19,7 +19,7 @@ public class ArrayDeque<Item> {
      getLast: The item we want to return is in position size - 1
      size: The number of items in the list should be size.
     */
-    private Item[] items;
+    private T[] items;
     private int nextFirst;
     private int nextLast;
     private int size;
@@ -28,7 +28,7 @@ public class ArrayDeque<Item> {
 
     /** Creates an empty list. */
     public ArrayDeque() {
-        items = (Item[]) new Object[initCapability];
+        items = (T[]) new Object[initCapability];
         nextLast = 0;
         nextFirst = initCapability - 1;
         size = 0;
@@ -49,23 +49,23 @@ public class ArrayDeque<Item> {
      *  then the new nextLast will be at size + 1, and new nextFirst
      *  will be at capacity - 1*/
     private void resize(int capacity) {
-        Item[] newArray = (Item[]) new Object[capacity];
+        T[] newArray = (T[]) new Object[capacity];
         int tempStart = plusOne(nextFirst);
         int tempEnd = minusOne(nextLast);
-//        int newIndex = 0;
-//        for (int i = tempStart; i < tempStart + size ; i++) {
-//            newArray[newIndex] = items[i % items.length];
-//            newIndex++;
-//        }
-        // Only in case we use addLast only, then tempStart < tempEnd
-        if (tempStart < tempEnd) {
-            System.arraycopy(items, tempStart, newArray, 0, size);
-        } else {
-            // copy the first to end of items
-            System.arraycopy(items, tempStart, newArray, 0, size - tempStart);
-            // copy from 0 to tempEnd
-            System.arraycopy(items, 0, newArray, size - tempStart, tempStart);
+        int newIndex = 0;
+        for (int i = tempStart; i < tempStart + size ; i++) {
+            newArray[newIndex] = items[i % items.length];
+            newIndex++;
         }
+        // Only in case we use addLast only, then tempStart < tempEnd
+//        if (tempStart < tempEnd) {
+//            System.arraycopy(items, tempStart, newArray, 0, size);
+//        } else {
+//            // copy the first to end of items
+//            System.arraycopy(items, tempStart, newArray, 0, size - tempStart);
+//            // copy from 0 to tempEnd
+//            System.arraycopy(items, 0, newArray, size - tempStart, tempStart);
+//        }
         items = newArray;
         nextLast = size;
         nextFirst = capacity - 1;
@@ -83,7 +83,7 @@ public class ArrayDeque<Item> {
         double ratio = (double) size / items.length;
 //        System.out.printf("begin %f",ratio);
         if (ratio < 0.5 && items.length >= 16) {
-            resize( items.length / resizeFactor);
+            resize(items.length / resizeFactor);
         }
     }
 
@@ -92,13 +92,13 @@ public class ArrayDeque<Item> {
     }
 
     public int size() {
-//        System.out.println(items.length);
-//        System.out.println(size);
+        System.out.println(items.length);
+        System.out.println(size);
         return size;
     }
 
     /** Inserts X into the back of the list. */
-    public void addLast(Item x) {
+    public void addLast(T x) {
         // Check size before add
         expand();
 
@@ -108,7 +108,7 @@ public class ArrayDeque<Item> {
     }
 
     /** Inserts X into the front of the list. */
-    public void addFirst(Item x) {
+    public void addFirst(T x) {
         // Check size before add
         expand();
 
@@ -118,7 +118,7 @@ public class ArrayDeque<Item> {
     }
 
     /** Removes X from the back of the list. */
-    public Item removeLast() {
+    public T removeLast() {
 //        if (size == items.length) {
 //            resize(size + 1);
 //        }
@@ -137,7 +137,7 @@ public class ArrayDeque<Item> {
     /** Removes X from the front of the list.
      *  corresponds with addFirst, here plusOne,
      *  so in addFirst, minusOne is used*/
-    public Item removeFirst() {
+    public T removeFirst() {
 //        if (size == items.length) {
 //            resize(size + 1);
 //        }
@@ -157,7 +157,7 @@ public class ArrayDeque<Item> {
     /** Gets the ith item in the list. 0 is the front.
      * This is core idea, no matter what our where the nextFirst and
      * nextLast start. So it appears to the uses the list start from 0*/
-    public Item get(int i) {
+    public T get(int i) {
         if (size == 0 || i >= size) {
             return null;
         } else {
@@ -173,50 +173,49 @@ public class ArrayDeque<Item> {
     * */
     public void printDeque() {
         int tempStart = plusOne(nextFirst);
-        for (int i = tempStart; i < tempStart + size ; i++) {
+        for (int i = tempStart; i < tempStart + size; i++) {
             System.out.print(items[i % items.length] + " ");
         }
         System.out.println();
-//        System.out.printf("starting at index %d, ending at index %d", tempStart, minusOne(nextLast));
     }
 
 
-//    public static void main(String[] args) {
-////        ArrayDeque<Integer> arrayTest = new ArrayDeque<>();
-////        arrayTest.addLast(1);
-////        arrayTest.addLast(2);
-////        arrayTest.addFirst(3);
-////        arrayTest.addFirst(4);
-////        arrayTest.addFirst(5);
-////        arrayTest.addFirst(6);
-////        arrayTest.addLast(7);
-////        arrayTest.addLast(8);
-////        arrayTest.size();
-////        arrayTest.printDeque();
-////        arrayTest.removeLast();
-////        arrayTest.removeFirst();
-////        arrayTest.removeFirst();
-////        arrayTest.removeFirst();
-////        arrayTest.removeFirst();
-////        arrayTest.size();
-////        arrayTest.printDeque();
-////
-//        ArrayDeque<Integer> q = new ArrayDeque<>();
+    public static void main(String[] args) {
+//        ArrayDeque<Integer> arrayTest = new ArrayDeque<>();
+//        arrayTest.addLast(1);
+//        arrayTest.addLast(2);
+//        arrayTest.addFirst(3);
+//        arrayTest.addFirst(4);
+//        arrayTest.addFirst(5);
+//        arrayTest.addFirst(6);
+//        arrayTest.addLast(7);
+//        arrayTest.addLast(8);
+//        arrayTest.size();
+//        arrayTest.printDeque();
+//        arrayTest.removeLast();
+//        arrayTest.removeFirst();
+//        arrayTest.removeFirst();
+//        arrayTest.removeFirst();
+//        arrayTest.removeFirst();
+//        arrayTest.size();
+//        arrayTest.printDeque();
 //
-//        for (int i = 0; i <= 15; i++) {
-//            q.addFirst(i);
-//        }
-//        q.printDeque();
-//
-//        for (int i = 15; i >= 2; i--) {
-//            int removed = q.removeFirst();
-//            System.out.printf("remove %d\n",removed);
-//            q.printDeque();
-//            q.size();
-////            double ratio = (double) q.size() / q.capacity;
-//            assertEquals(i, removed);
-////            assertTrue(ratio >= 0.25);
-//        }
-//    }
+        ArrayDeque<Integer> q = new ArrayDeque<>();
+
+        for (int i = 0; i <= 15; i++) {
+            q.addFirst(i);
+        }
+        q.printDeque();
+
+        for (int i = 15; i >= 2; i--) {
+            int removed = q.removeFirst();
+            System.out.printf("remove %d\n",removed);
+            q.printDeque();
+            q.size();
+//            double ratio = (double) q.size() / q.capacity;
+            assertEquals(i, removed);
+//            assertTrue(ratio >= 0.25);
+        }
+    }
 
 }
