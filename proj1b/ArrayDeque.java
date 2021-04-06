@@ -1,4 +1,4 @@
-import static org.junit.Assert.assertEquals;
+
 /**
  * Array-based double ended queue, which accepts generic types.
  * @Rule: All the method should follow "Deque API" described in
@@ -83,7 +83,7 @@ public class ArrayDeque<T> implements Deque<T> {
         double ratio = (double) size / items.length;
 //        System.out.printf("begin %f",ratio);
         if (ratio < 0.5 && items.length >= 16) {
-            resize( items.length / resizeFactor);
+            resize(items.length / resizeFactor);
         }
     }
 
@@ -180,15 +180,14 @@ public class ArrayDeque<T> implements Deque<T> {
     * */
     public void printDeque() {
         int tempStart = plusOne(nextFirst);
-        for (int i = tempStart; i < tempStart + size ; i++) {
+        for (int i = tempStart; i < tempStart + size; i++) {
             System.out.print(items[i % items.length] + " ");
         }
         System.out.println();
-//        System.out.printf("starting at index %d, ending at index %d", tempStart, minusOne(nextLast));
     }
 
 
-    public static void main(String[] args) {
+//    public static void main(String[] args) {
 ////        ArrayDeque<Integer> arrayTest = new ArrayDeque<>();
 ////        arrayTest.addLast(1);
 ////        arrayTest.addLast(2);
@@ -208,22 +207,22 @@ public class ArrayDeque<T> implements Deque<T> {
 ////        arrayTest.size();
 ////        arrayTest.printDeque();
 ////
-        ArrayDeque<Integer> q = new ArrayDeque<>();
-
-        for (int i = 0; i <= 15; i++) {
-            q.addFirst(i);
-        }
-        q.printDeque();
-
-        for (int i = 15; i >= 2; i--) {
-            int removed = q.removeFirst();
-            System.out.printf("remove %d\n",removed);
-            q.printDeque();
-            q.size();
-//            double ratio = (double) q.size() / q.capacity;
-            assertEquals(i, removed);
-//            assertTrue(ratio >= 0.25);
-        }
-    }
+//        ArrayDeque<Integer> q = new ArrayDeque<>();
+//
+//        for (int i = 0; i <= 15; i++) {
+//            q.addFirst(i);
+//        }
+//        q.printDeque();
+//
+//        for (int i = 15; i >= 2; i--) {
+//            int removed = q.removeFirst();
+//            System.out.printf("remove %d\n",removed);
+//            q.printDeque();
+//            q.size();
+////            double ratio = (double) q.size() / q.capacity;
+//            assertEquals(i, removed);
+////            assertTrue(ratio >= 0.25);
+//        }
+//    }
 
 }
