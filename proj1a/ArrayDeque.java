@@ -53,7 +53,7 @@ public class ArrayDeque<T> {
         int tempStart = plusOne(nextFirst);
         int tempEnd = minusOne(nextLast);
         int newIndex = 0;
-        for (int i = tempStart; i < tempStart + size ; i++) {
+        for (int i = tempStart; i < tempStart + size; i++) {
             newArray[newIndex] = items[i % items.length];
             newIndex++;
         }
@@ -180,7 +180,7 @@ public class ArrayDeque<T> {
     }
 
 
-    public static void main(String[] args) {
+//    public static void main(String[] args) {
 //        ArrayDeque<Integer> arrayTest = new ArrayDeque<>();
 //        arrayTest.addLast(1);
 //        arrayTest.addLast(2);
@@ -200,22 +200,22 @@ public class ArrayDeque<T> {
 //        arrayTest.size();
 //        arrayTest.printDeque();
 //
-        ArrayDeque<Integer> q = new ArrayDeque<>();
-
-        for (int i = 0; i <= 15; i++) {
-            q.addFirst(i);
-        }
-        q.printDeque();
-
-        for (int i = 15; i >= 2; i--) {
-            int removed = q.removeFirst();
-            System.out.printf("remove %d\n",removed);
-            q.printDeque();
-            q.size();
-//            double ratio = (double) q.size() / q.capacity;
-            assertEquals(i, removed);
-//            assertTrue(ratio >= 0.25);
-        }
-    }
+//        ArrayDeque<Integer> q = new ArrayDeque<>();
+//
+//        for (int i = 0; i <= 15; i++) {
+//            q.addFirst(i);
+//        }
+//        q.printDeque();
+//
+//        for (int i = 15; i >= 2; i--) {
+//            int removed = q.removeFirst();
+//            System.out.printf("remove %d\n", removed);
+//            q.printDeque();
+//            q.size();
+////            double ratio = (double) q.size() / q.capacity;
+//            assertEquals(i, removed);
+////            assertTrue(ratio >= 0.25);
+//        }
+//    }
 
 }
