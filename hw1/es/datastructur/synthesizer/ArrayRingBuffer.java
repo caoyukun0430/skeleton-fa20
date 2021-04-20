@@ -125,6 +125,7 @@ public class ArrayRingBuffer<T> implements BoundedQueue<T> {
             return false;
         }
         Iterator<T> otherIterator = other.iterator();
+        // check each item should be identical in the same order
         for (T item: this) {
             if (otherIterator.hasNext()) {
                 T next = otherIterator.next();
