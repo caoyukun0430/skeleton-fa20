@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-
 public class UnionFind {
     int[] parent;
 
@@ -15,7 +13,10 @@ public class UnionFind {
 
     /* Throws an exception if v1 is not a valid vertex. */
     private void validate(int v1) {
-        // TODO
+        if (v1 < 0 || v1 >= parent.length) {
+            throw new IllegalArgumentException("index " + v1
+                    + " is not between 0 and " + (parent.length));
+        }
     }
 
     /* Returns the size of the set v1 belongs to. */
@@ -27,13 +28,13 @@ public class UnionFind {
     /* Returns the parent of v1. If v1 is the root of a tree, returns the
        negative size of the tree for which v1 is the root. */
     public int parent(int v1) {
+        validate(v1);
         return parent[v1];
     }
 
     /* Returns true if nodes v1 and v2 are connected. */
     public boolean isConnected(int v1, int v2) {
-        // TODO
-        return false;
+        return find(v1) == find(v2);
     }
 
     /* Connects two elements v1 and v2 together. v1 and v2 can be any valid 
@@ -42,14 +43,40 @@ public class UnionFind {
        vertex with itself or vertices that are already connected should not 
        change the sets but may alter the internal structure of the data. */
     public void connect(int v1, int v2) {
-        // TODO
+        int r1 = find(v1);
+        int r2 = find(v2);
+        // Connecting a vertex with itself or vertices that
+        // are already connected should not change the sets
+        if (r1 == r2) {
+            return;
+        }
+        if (sizeOf(r1) > sizeOf(r2)) {
+            // overwrite order is important, first get size, then change parent[r2]
+            parent[r1] += -1 * sizeOf(r2);
+            parent[r2] = r1;
+        } else {
+            parent[r2] += -1 * sizeOf(r1);
+            parent[r1] = r2;
+        }
     }
 
     /* Returns the root of the set v1 belongs to. Path-compression is employed
        allowing for fast search-time. */
     public int find(int v1) {
-        // TODO
-        return -1;
+        validate(v1);
+//        int r = v1;
+//        while (parent[r] > 0) {
+//            r = parent[r];
+//        }
+//        return r;
+
+        // recursion
+        // base case
+        if (parent[v1] < 0) {
+            return v1;
+        } else {
+            return find(parent[v1]);
+        }
     }
 
 }
