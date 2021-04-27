@@ -27,6 +27,7 @@ public class TestBSTMap {
                         && b.containsKey("hi" + i));
         }
         assertEquals(455, b.size());
+        b.printInOrder();
         b.clear();
         assertEquals(0, b.size());
         for (int i = 0; i < 455; i++) {
@@ -51,10 +52,12 @@ public class TestBSTMap {
         assertEquals(0, b.size());
         b.put("starChild", 5);
         assertTrue(((Integer) b.get("starChild")).equals(5));
+        b.put("x", 5);
         b.put("KISS", 5);
         assertTrue(((Integer) b.get("KISS")).equals(5));
         assertNotEquals(null,b.get("starChild"));
-        assertEquals(2, b.size());
+        assertEquals(3, b.size());
+        b.printInOrder();
     }
 
     // assumes put works
