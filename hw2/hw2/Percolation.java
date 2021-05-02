@@ -116,4 +116,7 @@ public class Percolation {
         return connectedGrid.connected(N * N, N * N + 1);
     }
 
+    public static void main(String[] args) {
+
+    }
 }

@@ -16,6 +16,9 @@ public class PercolationStats {
      * @param pf use the PercolationFactory object pf to create new Percolation objects
      */
     public PercolationStats(int N, int T, PercolationFactory pf) {
+        if (N <= 0 || T <= 0) {
+            throw new IllegalArgumentException("N or T must larger than 0.");
+        }
         numOfExper = T;
         fracOfOpen = new double[T];
         for (int i = 0; i < numOfExper; i++) {
