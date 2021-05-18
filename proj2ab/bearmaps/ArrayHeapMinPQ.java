@@ -225,13 +225,13 @@ public class ArrayHeapMinPQ<T> implements ExtrinsicMinPQ<T> {
         heapMinPQ.add(1, 1);
         heapMinPQ.add(2, 2);
         heapMinPQ.add(3, 3);
-        heapMinPQ.add(4, 4); // results is 1-3-2-4
-        heapMinPQ.add(5, 5); // results is 1-3-2-4-5
+        heapMinPQ.add(4, 4);
+        heapMinPQ.add(5, 5); // results is 1-2-3-4-5
         heapMinPQ.printSimpleHeapDrawing();
         heapMinPQ.getSmallest();
 //        int re = heapMinPQ.removeSmallest();
 //        System.out.println(re);
-        heapMinPQ.changePriority(4, 0.5);
+        heapMinPQ.changePriority(4, 0.5); // results is 4-1-3-2-5
         heapMinPQ.printSimpleHeapDrawing();
     }
 }
