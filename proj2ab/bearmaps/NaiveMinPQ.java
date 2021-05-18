@@ -51,7 +51,7 @@ public class NaiveMinPQ<T> implements ExtrinsicMinPQ<T> {
 
     @Override
     public void changePriority(T item, double priority) {
-        if (contains(item) == false) {
+        if (!contains(item)) {
             throw new NoSuchElementException("PQ does not contain " + item);
         }
         items.get(indOf(item)).setPriority(priority);
@@ -110,5 +110,44 @@ public class NaiveMinPQ<T> implements ExtrinsicMinPQ<T> {
         public int hashCode() {
             return item.hashCode();
         }
+    }
+
+    /** @source PrintHeapDemo.java
+     * Prints out a vey basic drawing of the given array of Objects assuming it
+     *  is a heap starting at index 1. */
+    public void printSimpleHeapDrawing() {
+        int depth = ((int) (Math.log(items.size()) / Math.log(2)));
+        int level = 0;
+        int itemsUntilNext = (int) Math.pow(2, level);
+        for (int j = 0; j < depth; j++) {
+            System.out.print(" ");
+        }
+
+        for (int i = 1; i <= items.size(); i++) {
+            System.out.printf("%d ", items.get(i - 1).getItem());
+            if (i == itemsUntilNext) {
+                System.out.println();
+                level++;
+                itemsUntilNext += Math.pow(2, level);
+                depth--;
+                for (int j = 0; j < depth; j++) {
+                    System.out.print(" ");
+                }
+            }
+        }
+        System.out.println();
+    }
+
+    public static void main(String[] args) {
+        NaiveMinPQ<Integer> minPQ = new NaiveMinPQ<>();
+        minPQ.add(1, 1.0);
+        minPQ.add(2, 2.0);
+        minPQ.add(3, 3.0);
+        minPQ.add(4, 4.0);
+        minPQ.add(5, 5.0);
+        int small = minPQ.getSmallest();
+        System.out.print(minPQ.contains(2));
+        System.out.println(minPQ.getSmallest());
+        minPQ.printSimpleHeapDrawing();
     }
 }
