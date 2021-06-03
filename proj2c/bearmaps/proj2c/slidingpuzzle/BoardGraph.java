@@ -14,6 +14,16 @@ import java.util.List;
  * improve A* performance.
  * Created by hug.
  */
+// each state is a node, e.g. initial has 4 neighbours in theory, top,
+// left, right, bottom moving to blank, 1 left is one of them. Each edge
+// has weight one since only one move is made
+
+//              1  3        1     3        1  2  3        1  2  3        1  2  3
+//           4  2  5   =>   4  2  5   =>   4     5   =>   4  5      =>   4  5  6
+//           7  8  6        7  8  6        7  8  6        7  8  6        7  8
+//
+//           initial        1 left          2 up          5 left          goal
+
 public class BoardGraph implements AStarGraph<Board> {
     @Override
     public List<WeightedEdge<Board>> neighbors(Board b) {
@@ -28,6 +38,7 @@ public class BoardGraph implements AStarGraph<Board> {
     @Override
     public double estimatedDistanceToGoal(Board s, Board goal) {
         //return 0;
+        // heuristic is manhattanDistance
         int maxVal = s.size() * s.size();
 
         int totalDistance = 0;
