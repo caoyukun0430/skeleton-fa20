@@ -1,8 +1,7 @@
-import edu.princeton.cs.algs4.SequentialSearchST;
-
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import edu.princeton.cs.algs4.SequentialSearchST;
 
 /** source: https://algs4.cs.princeton.edu/34hash/
  * https://algs4.cs.princeton.edu/34hash/SeparateChainingHashST.java.html */
@@ -25,7 +24,9 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     public MyHashMap() {
         this.M = initialSize;
         hashTable = (SequentialSearchST<K, V>[]) new SequentialSearchST[M];
-
+        for (int i = 0; i < M; i++) {
+            hashTable[i] = new SequentialSearchST<K, V>();
+        }
     }
 
     /**
