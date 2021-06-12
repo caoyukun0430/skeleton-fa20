@@ -1,9 +1,12 @@
 package bearmaps.proj2d;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import bearmaps.proj2c.AStarSolver;
+import bearmaps.proj2c.WeightedEdge;
+import bearmaps.proj2c.streetmap.Node;
 
 /**
  * This class acts as a helper for the RoutingAPIHandler.
@@ -24,10 +27,9 @@ public class Router {
      */
     public static List<Long> shortestPath(AugmentedStreetMapGraph g, double stlon, double stlat,
                                           double destlon, double destlat) {
-        //long src = g.closest(stlon, stlat);
-        //long dest = g.closest(destlon, destlat);
-        //return new WeirdSolver<>(g, src, dest, 20).solution();
-        return null;
+        long src = g.closest(stlon, stlat);
+        long dest = g.closest(destlon, destlat);
+        return new AStarSolver<>(g, src, dest, 20).solution();
     }
 
     /**
@@ -38,10 +40,96 @@ public class Router {
      * @return A list of NavigatiionDirection objects corresponding to the input
      * route.
      */
+    // Note: slight errors in test 0 and 2, all other passes
+    // AND interactive tests on mapServer looks good!
     public static List<NavigationDirection> routeDirections(AugmentedStreetMapGraph g,
                                                             List<Long> route) {
-        /* fill in for part IV */
+        List<Node> nodes = g.getNodes();
+        // Create a map between node id and node
+        Map<Long, Node> id2Node = new HashMap<>();
+        for (Node n : nodes) {
+            id2Node.put(n.id(), n);
+        }
+        // Create the return list of directions
+        List<NavigationDirection> routeDirections = new ArrayList<>();
+
+        // Create three lists to record the bearing, direction for each node in route
+        List<Double> bearingArray = new ArrayList<>();
+        List<Integer> directionArray = new ArrayList<>();
+        // We use the tempIndex to record the index when we need to add new element into
+        // routeDirections
+        // For example when way name/direction changes, but when we are still on the same way,
+        // we don't need to create new element in routeDirections.
+        int tempIndex = 0;
+        for (int i = 0; i < route.size() - 1; i++) {
+            Node v = id2Node.get(route.get(i));
+            Node w = id2Node.get(route.get(i + 1));
+            // bearing for current node v is between v and next node w
+            double bearing = NavigationDirection.bearing(v.lon(), w.lon(), v.lat(), w.lat());
+            bearingArray.add(bearing);
+            // Initialize direction
+            int direction = 0;
+            if (i >= 1) {
+                direction = NavigationDirection.getDirection(bearingArray.get(i - 1), bearing);
+            }
+            directionArray.add(direction);
+            // way name is the way between current v and next node
+            String way = getRoadName(g, v.id(), w.id());
+            // Create a temp direction for each node and later decide if it differs with
+            // existing direction
+            NavigationDirection temp = new NavigationDirection();
+            temp.way = way;
+            temp.direction = direction;
+            // // Initialize the start NavigationDirection once we get way name
+            if (i == 0) {
+                routeDirections.add(temp);
+            }
+            // The if conditions defines when we update and add new direction into routeDirections
+            // 1. we will not add when current temp equals last element in routeDirections
+            // 2. we will not add when we are on the same road and direction is
+            // straight/slight left/slight right, because we will still continue on the same road
+            if (!temp.equals(routeDirections.get(routeDirections.size() - 1))
+                    && !(way.equals(routeDirections.get(routeDirections.size() - 1).way)
+                    && (direction == 2 || direction == 3 || direction == 1))) {
+                updateRouteDirections(tempIndex, i, id2Node, g, routeDirections, route);
+                // After update last element in routeDirections, we add current direction
+                // into list and update tempIndex
+                routeDirections.add(temp);
+                tempIndex = i;
+            }
+        }
+        // the for loop doesn't update distance for the last routeDirection
+        // since it doesn't count last node
+        updateRouteDirections(tempIndex, route.size() - 1, id2Node,
+                g, routeDirections, route);
+
+        return routeDirections;
+    }
+
+    private static String getRoadName(AugmentedStreetMapGraph g, long v, long w) {
+        List<WeightedEdge<Long>> edges = g.neighbors(v);
+        for (WeightedEdge e : edges) {
+            if ((long) e.to() == w) {
+                return e.getName();
+            }
+        }
         return null;
+    }
+
+    // private helper to update the routeDirections last element once got the final distance
+    // we only update distance when we finally change the direction, we count distance between
+    // starting point tempIndex and end point current v
+    private static void updateRouteDirections(int tempIndex, int currentIndex,
+                                              Map<Long, Node> id2Node,
+                                              AugmentedStreetMapGraph g,
+                                              List<NavigationDirection> routeDirections,
+                                              List<Long> route) {
+        Node last = id2Node.get(route.get(currentIndex));
+        Node st = id2Node.get(route.get(tempIndex));
+        double dist = g.estimatedDistanceToGoal(st.id(), last.id());
+        NavigationDirection updated = routeDirections.get(routeDirections.size() - 1);
+        updated.distance = dist;
+        routeDirections.set(routeDirections.size() - 1, updated);
     }
 
     /**

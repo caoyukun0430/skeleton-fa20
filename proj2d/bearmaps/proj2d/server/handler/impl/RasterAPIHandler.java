@@ -27,6 +27,14 @@ import static bearmaps.proj2d.utils.Constants.ROUTE_LIST;
  */
 public class RasterAPIHandler extends APIRouteHandler<Map<String, Double>, Map<String, Object>> {
 
+    private static final double ROOT_ULLAT = Constants.ROOT_ULLAT;
+    private static final double ROOT_ULLON = Constants.ROOT_ULLON;
+    private static final double ROOT_LRLAT = Constants.ROOT_LRLAT;
+    private static final double ROOT_LRLON = Constants.ROOT_LRLON;
+    public static final int TILE_SIZE = Constants.TILE_SIZE;
+    private static final double ROOT_LONDPP = (ROOT_LRLON - ROOT_ULLON) / TILE_SIZE;
+    private static final double ROOT_LATDPP = (ROOT_ULLAT - ROOT_LRLAT) / TILE_SIZE;
+
     /**
      * Each raster request to the server will have the following parameters
      * as keys in the params map accessible by,
@@ -83,13 +91,124 @@ public class RasterAPIHandler extends APIRouteHandler<Map<String, Double>, Map<S
      *                    forget to set this to true on success! <br>
      */
     @Override
-    public Map<String, Object> processRequest(Map<String, Double> requestParams, Response response) {
-        //System.out.println("yo, wanna know the parameters given by the web browser? They are:");
-        //System.out.println(requestParams);
+    public Map<String, Object> processRequest(Map<String, Double> requestParams,
+                                              Response response) {
+        System.out.println("yo, wanna know the parameters given by the web browser? They are:");
+        System.out.println(requestParams);
         Map<String, Object> results = new HashMap<>();
-        System.out.println("Since you haven't implemented RasterAPIHandler.processRequest, nothing is displayed in "
-                + "your browser.");
+        // Keep in mind:
+        // LAT: WEI; LON: JING
+        // ROOT_ULLAT > ROOT_LRLAT
+        // ROOT_LRLON > ROOT_ULLON
+        double queryULlon = requestParams.get("ullon");
+        double queryULlat = requestParams.get("ullat");
+        double queryLRlon = requestParams.get("lrlon");
+        double queryLRlat = requestParams.get("lrlat");
+        double queryWidth = requestParams.get("w");
+        double queryHeight = requestParams.get("h");
+        double queryLonDPP = (queryLRlon - queryULlon) / queryWidth;
+
+        // Handle Corner Cases:
+        // Case 1: No Coverage
+        // Invalid input OR query box for a location that is completely outside of
+        // the root longitude/latitudes.
+        // Return query: fails in the case
+        if ((queryLRlat >= queryULlat || queryULlon >= queryLRlon)
+                || (queryLRlon < ROOT_ULLON || queryLRlat > ROOT_ULLAT
+                || queryULlon > ROOT_LRLON || queryULlat < ROOT_LRLAT)) {
+            return queryFail();
+        }
+        // For depth calculation, use the query box lon/lat, even if it exceeds ROOT_X
+        int depth = getDepth(queryLonDPP);
+
+        // Case 2: Partial Coverage(we use Math.min()/max() to cover it)
+//        * If the user goes to the edge of the map beyond where data is available.
+//        * If the query box is so zoomed out that it includes the entire dataset.
+//        In these cases, simply return what data you do have available.
+        double validULlon = Math.max(queryULlon, ROOT_ULLON);
+        double validULlat = Math.min(queryULlat, ROOT_ULLAT);
+        double validLRlon = Math.min(queryLRlon, ROOT_LRLON);
+        double validLRlat = Math.max(queryLRlat, ROOT_LRLAT);
+        int ULXindex = getXindex(validULlon, depth);
+        int LRXindex = getXindex(validLRlon, depth);
+        int ULYindex = getYindex(validULlat, depth);
+        int LRYindex = getYindex(validLRlat, depth);
+
+        // Calculate raster_ul_lon, raster_ul_lat, raster_lr_lon, raster_lr_lat
+        double rasterLonDPP = ROOT_LONDPP / Math.pow(2, depth);
+        double rasterLatDPP = ROOT_LATDPP / Math.pow(2, depth);
+        // DPP is distance per pixel, so remember to * TILE_SIZE !!!
+        double raster_ul_lon = ROOT_ULLON + TILE_SIZE * rasterLonDPP * ULXindex;
+        double raster_ul_lat = ROOT_ULLAT - TILE_SIZE * rasterLatDPP * ULYindex;
+        double raster_lr_lon = ROOT_ULLON + TILE_SIZE * rasterLonDPP * (LRXindex + 1);
+        double raster_lr_lat = ROOT_ULLAT - TILE_SIZE * rasterLatDPP * (LRYindex + 1);
+
+        // Calculate RenderGrid
+        String[][] render_grid = getRenderGrid(depth, ULXindex, LRXindex, ULYindex, LRYindex);
+
+        // Form return map
+        results.put("render_grid", render_grid);
+        results.put("raster_ul_lon", raster_ul_lon);
+        results.put("raster_ul_lat", raster_ul_lat);
+        results.put("raster_lr_lon", raster_lr_lon);
+        results.put("raster_lr_lat", raster_lr_lat);
+        results.put("depth", depth);
+        results.put("query_success", true);
+
         return results;
+    }
+
+    private int getDepth(double queryLonDPP) {
+        // Calculate the log2 of queryLonDPP wrt. root LonDPP and ceil it
+        double ratio = ROOT_LONDPP / queryLonDPP;
+        int depth =  (int) Math.ceil(Math.log(ratio) / Math.log(2));
+        if (depth > 7) {
+            depth = 7;
+        }
+        return depth;
+    }
+
+    // Calculate the lon index of UL and LR points
+    private int getXindex(double lon, int depth) {
+        // one edge cases since ceil(0) = 0
+        if (lon == ROOT_ULLON) {
+            return 0;
+        } else {
+            double rasterLonDPP = ROOT_LONDPP / Math.pow(2, depth);
+            double numOfPixels = (lon - ROOT_ULLON) / rasterLonDPP;
+            // Since Xindex starts from 0 left -> right, we ceil and minus 1
+            return (int) (Math.ceil(numOfPixels / TILE_SIZE) - 1);
+        }
+    }
+
+    // Calculate the lat index of UL and LR points
+    private int getYindex(double lat, int depth) {
+        // one edge cases since ceil(0) = 0
+        if (lat == ROOT_LRLAT) {
+            return (int) (Math.pow(2, depth) - 1);
+        } else {
+            double rasterLatDPP = ROOT_LATDPP / Math.pow(2, depth);
+            double numOfYPixels = (lat - ROOT_LRLAT) / rasterLatDPP;
+            // the Y index is ordered from top to bottom, unlike Xindex.
+            int Yindex = (int) (Math.pow(2, depth) - Math.ceil(numOfYPixels / TILE_SIZE));
+            return Yindex;
+        }
+    }
+
+    public String[][] getRenderGrid(int depth, int ULXindex, int LRXindex,
+                                    int ULYindex, int LRYindex) {
+        // Grid has Y rows and X columns
+        int rows = LRYindex - ULYindex + 1;
+        int columns = LRXindex - ULXindex + 1;
+        String[][] renderGrid = new String[rows][columns];
+        // string element in format d1_x0_y0.png
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                renderGrid[i][j] = String.format("d%d_x%d_y%d.png", depth,
+                        ULXindex + j, ULYindex + i);
+            }
+        }
+        return renderGrid;
     }
 
     @Override

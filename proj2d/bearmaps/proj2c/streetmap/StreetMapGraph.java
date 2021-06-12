@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.*;
 
 public class StreetMapGraph implements AStarGraph<Long> {
+    // every node in graph is a Node with long id
     private Map<Long, Node> nodes = new HashMap<>();
     private Map<Long, Set<WeightedEdge<Long>>> neighbors = new HashMap<>();
 
@@ -227,7 +228,7 @@ public class StreetMapGraph implements AStarGraph<Long> {
         return nodes.get(v).name();
     }
 
-    protected List<Node> getNodes() {
+    public List<Node> getNodes() {
         List<Node> nodes = new ArrayList<>();
         for(Map.Entry<Long, Node> nodeEntry: this.nodes.entrySet()){
             nodes.add(nodeEntry.getValue());
